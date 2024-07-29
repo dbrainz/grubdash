@@ -1,11 +1,11 @@
-function bodyDataHas(propertyName) {
+function isNotEmpty(propertyName) {
     return function(req, res, next) {
         const { data = {} } = req.body
-        if (propertyName in data) {
+        if (data[propertyName]) {
             return next();
         }
         next({ status: 400, message: `Must include a ${propertyName}`})
     }
 }
 
-module.exports = bodyDataHas
+module.exports = isNotEmpty

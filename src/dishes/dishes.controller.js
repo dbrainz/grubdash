@@ -8,6 +8,8 @@ const nextId = require("../utils/nextId");
 
 const bodyDataHas = require("../utils/bodyDataHas")
 
+const isNotEmpty = require("../utils/isNotEmpty")
+
 // TODO: Implement the /dishes handlers needed to make the tests pass
 
 function priceIsValid(req, res, next) {
@@ -15,9 +17,10 @@ function priceIsValid(req, res, next) {
     if (price <= 0 || !Number.isInteger(price)) {
         return next({
             status: 400,
-            message: `Price requires a valid number`
+            message: `Dish must have a price that is an integer greater than 0`
         })
     }
+    next();
 }
 
 function list(req, res) {
@@ -27,7 +30,7 @@ function list(req, res) {
 function create(req, res) {
     const { data: { name, description, price, image_url } = {} }= req.body
     const newDish = {
-        //id: nextId(),
+        id: nextId(),
         name,
         description,
         price,
@@ -45,7 +48,10 @@ module.exports = {
         bodyDataHas("description"),
         bodyDataHas("price"),
         bodyDataHas("image_url"),
+        isNotEmpty("name"),
+        isNotEmpty("description"),
         priceIsValid,
+        isNotEmpty("image_url"),
         create
     ]
 }
