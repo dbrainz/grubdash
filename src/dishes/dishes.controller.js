@@ -41,6 +41,25 @@ function create(req, res) {
     res.status(201).json({ data: newDish })
 }
 
+function dishExists(req, res, next) {
+    const { dishId } = req.params
+    const dishFound = dishes.find( dish => dish.id === dishId)
+
+    if (dishFound) {
+        res.locals.dish = dishFound
+        return next()
+    }
+
+    next({
+        status: 404,
+        message: `Dish id not found: ${dishId}`
+    })
+}
+
+function read(req, res) {
+    res.json({data : res.locals.dish})
+}
+
 module.exports = {
     list,
     create:[
@@ -53,5 +72,9 @@ module.exports = {
         priceIsValid,
         isNotEmpty("image_url"),
         create
+    ],
+    read: [
+        dishExists,
+        read
     ]
 }
