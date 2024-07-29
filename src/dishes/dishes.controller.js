@@ -36,7 +36,6 @@ function create(req, res) {
         price,
         image_url
     }
-    console.log(newDish)
     dishes.push(newDish)
     res.status(201).json({ data: newDish })
 }
@@ -68,7 +67,7 @@ function idMatches(req, res, next){
     if (reqDish['id']) {
         if (reqDish['id'] !== dishId) {
             next({
-                status: 404,
+                status: 400,
                 message: `Dish id does not match route id. Dish ${reqDish['id']}, Route: ${dishId}`
             })
         }
@@ -93,12 +92,12 @@ module.exports = {
     list,
     create:[
         bodyDataHas("name"),
-        bodyDataHas("description"),
-        bodyDataHas("price"),
-        bodyDataHas("image_url"),
         isNotEmpty("name"),
+        bodyDataHas("description"),
         isNotEmpty("description"),
+        bodyDataHas("price"),
         priceIsValid,
+        bodyDataHas("image_url"),
         isNotEmpty("image_url"),
         create
     ],
@@ -109,12 +108,12 @@ module.exports = {
     update: [
         dishExists,
         bodyDataHas("name"),
-        bodyDataHas("description"),
-        bodyDataHas("price"),
-        bodyDataHas("image_url"),
         isNotEmpty("name"),
+        bodyDataHas("description"),
         isNotEmpty("description"),
+        bodyDataHas("price"),
         priceIsValid,
+        bodyDataHas("image_url"),
         isNotEmpty("image_url"),
         idMatches,
         update

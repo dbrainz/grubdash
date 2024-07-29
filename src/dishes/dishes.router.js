@@ -11,7 +11,7 @@ router.route("/")
 
 router.route("/:dishId")
     .get(controller.read)
-    .post(controller.update)
+    .put(controller.update)
     .all(methodNotAllowed)
 
 
