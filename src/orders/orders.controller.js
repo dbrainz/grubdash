@@ -28,11 +28,28 @@ function isDishArray(req, res, next) {
 
 function checkDishPrices(req, res, next){
     const { dishes } = req.body
-    
+
 }
 
 function create(req, res){
 
+}
+
+function orderExists(req, res, next) {
+    const { orderId } = req.params
+    const orderFound = orders.find( order => orderId === order.id )
+    if (orderFound) {
+        res.locals.order = orderFound
+        return next()
+    }
+    next({
+        status: 404,
+        message: `Order Id not found: ${orderId}`
+    })
+}
+
+function read(req, res) {
+    res.json({ data: res.locals.order})
 }
 
 module.exports = {
@@ -47,5 +64,9 @@ module.exports = {
         isDishArray,
         checkDishPrices,
         create
+    ],
+    read:[
+        orderExists,
+        read
     ]
 }

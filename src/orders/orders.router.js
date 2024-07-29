@@ -10,6 +10,7 @@ router.route("/")
     .all(methodNotAllowed)
 
 router.route("/:orderId")
+    .get(controller.read)
     .all(methodNotAllowed)
 
 
