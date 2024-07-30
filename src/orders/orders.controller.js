@@ -16,8 +16,9 @@ function list(req, res){
 }
 
 function isDishArray(req, res, next) {
-    const { dishes } = req.body 
-    if (Array.isArray(dishes)) {
+    const { dishes } = req.body.data
+    console.log(dishes)
+    if (Array.isArray(dishes) && dishes.length !== 0) {
         return next()
     }
     next({
@@ -26,13 +27,21 @@ function isDishArray(req, res, next) {
     })
 }
 
-function checkDishPrices(req, res, next){
-    const { dishes } = req.body
-
+function checkDishQuantities(req, res, next){
+    const { dishes } = req.body.data;
+    dishes.forEach( (dish, index) => {
+        if (!dish.quantity || !Number.isInteger(dish.quantity) || dish.quantity <= 0) {
+            next({
+                status: 400,
+                message: `Dish ${index} must have a quantity that is an integer greater than 0`
+            })
+        }
+    });
+    next();
 }
 
 function create(req, res){
-
+    res.json( { data : 'create placeholder'})
 }
 
 function orderExists(req, res, next) {
@@ -52,6 +61,26 @@ function read(req, res) {
     res.json({ data: res.locals.order})
 }
 
+function idMatches(req, res, next){
+
+    const { orderId } = req.params
+    const reqOrder = req.body.data
+
+    if (reqOrder['id']) {
+        if (reqOrder['id'] !== orderId) {
+            next({
+                status: 400,
+                message: `Order id does not match route id. Order ${reqOrder['id']}, Route: ${orderId}`
+            })
+        }
+    }
+    next();
+}
+
+function update(req, res){
+    res.json({ data: "Update placeholder"})
+}
+
 module.exports = {
     list,
     create:[
@@ -62,11 +91,26 @@ module.exports = {
         bodyDataHas("dishes"),
         isNotEmpty("dishes"),
         isDishArray,
-        checkDishPrices,
+        checkDishQuantities,
         create
     ],
     read:[
         orderExists,
         read
+    ],
+    update:[
+        orderExists,
+        idMatches,
+        bodyDataHas("deliverTo"),
+        isNotEmpty("deliverTo"),
+        bodyDataHas("mobileNumber"),
+        isNotEmpty("mobileNumber"),
+        bodyDataHas("dishes"),
+        isNotEmpty("dishes"),
+        bodyDataHas("status"),
+        isNotEmpty("status"),
+        isDishArray,
+        checkDishQuantities,
+        update
     ]
 }
