@@ -41,7 +41,17 @@ function checkDishQuantities(req, res, next){
 }
 
 function create(req, res){
-    res.json( { data : 'create placeholder'})
+    const { deliverTo, mobileNumber, status, dishes } = req.body.data
+    const order = {
+        id: nextId(),
+        deliverTo,
+        mobileNumber,
+        status,
+        dishes
+    }
+    orders.push(order)
+    res.status(201).json({ data: order})
+
 }
 
 function orderExists(req, res, next) {
@@ -77,8 +87,35 @@ function idMatches(req, res, next){
     next();
 }
 
+function orderAlreadyDelivered(req, res, next){
+    if (res.locals.order.status == "delivered") {
+        next({
+            status: 400,
+            message: "A delivered order cannot be changed"
+        })
+    }
+    next()
+}
+
+function isStatusValid(req, res, next){
+    const { status } = req.body.data;
+    if (["pending", "preparing", "out-for-delivery", "delivered"].includes(status)) {
+        next()
+    }
+    next({
+        status: 400,
+        message: "Order must have a status of pending, preparing, out-for-delivery, delivered"
+    })
+}
+
 function update(req, res){
-    res.json({ data: "Update placeholder"})
+    const { deliverTo, mobileNumber, status, dishes } = req.body.data
+    const order = res.locals.order
+    order.deliverTo = deliverTo
+    order.mobileNumber = mobileNumber
+    order.status = status
+    order.dishes = dishes
+    res.json({ data: order})
 }
 
 module.exports = {
@@ -109,6 +146,8 @@ module.exports = {
         isNotEmpty("dishes"),
         bodyDataHas("status"),
         isNotEmpty("status"),
+        orderAlreadyDelivered,
+        isStatusValid,
         isDishArray,
         checkDishQuantities,
         update
