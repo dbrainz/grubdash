@@ -17,7 +17,6 @@ function list(req, res){
 
 function isDishArray(req, res, next) {
     const { dishes } = req.body.data
-    console.log(dishes)
     if (Array.isArray(dishes) && dishes.length !== 0) {
         return next()
     }
@@ -118,6 +117,23 @@ function update(req, res){
     res.json({ data: order})
 }
 
+function orderIsPending(req, res, next) {
+    if (res.locals.order.status !== "pending") {
+        next({
+            status: 400,
+            message: "Orders cannnot be deleted unless status='pending'"
+        })
+    }
+    return next()
+}
+
+function destroy(req, res){
+    const { orderId } = req.params
+    const index = orders.find( order => order.id === orderId)
+    const deletedOrder = orders.splice(index, 1)
+    res.sendStatus(204)
+}
+
 module.exports = {
     list,
     create:[
@@ -151,5 +167,10 @@ module.exports = {
         isDishArray,
         checkDishQuantities,
         update
+    ],
+    destroy:[
+        orderExists,
+        orderIsPending,
+        destroy
     ]
 }
